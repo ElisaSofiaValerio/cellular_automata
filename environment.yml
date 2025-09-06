@@ -9,5 +9,5 @@ dependencies:
   - pandas
   - plotly::plotly
   - pyqtgraph
-  - sklearn
+  - scikit-learn
   - scipy
