@@ -1,0 +1,13 @@
+name: automata
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - matplotlib
+  - numpy
+  - pandas
+  - plotly::plotly
+  - pyqtgraph
+  - sklearn
+  - scipy
