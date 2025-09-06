@@ -19,7 +19,7 @@ class GenCompute:
         # Create new generation of grid
 
         # return grid, please.
-        pass
+        return grid
 
 
 if __name__ == '__main__':
