@@ -1,5 +1,5 @@
 import numpy as np
-
+import time
 from cellular_automata.algorithm.generation_computer import GenCompute
 
 
@@ -21,8 +21,10 @@ def test_first_gen():
     survival = [2, 7]
 
     test_object = GenCompute()
-    new_grid = test_object.next_step(grid, kernel, birth, survival)
 
+    start = time.time()
+    new_grid = test_object.next_step(grid, kernel, birth, survival)
+    print(f"Time taken for function:{time.time() - start}")
     target_grid = np.zeros(shape=(10, 10))
     target_grid[3][5] = 1
     target_grid[4][5] = 1
@@ -50,8 +52,9 @@ def test_second_gen():
     survival = [2, 7]
 
     test_object = GenCompute()
+    start = time.time()
     new_grid = test_object.next_step(grid, kernel, birth, survival)
-
+    print(f"Time taken for function:{time.time() - start}")
     target_grid = np.zeros(shape=(10, 10))
     target_grid[4][5] = 1
     target_grid[5][5] = 1
