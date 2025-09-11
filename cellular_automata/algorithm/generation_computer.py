@@ -13,27 +13,21 @@ class GenCompute:
         # Keep the neighbours values in a separate array
         neighbours_grid = scipy.signal.correlate2d(grid, kernel, mode='same', boundary='wrap')
 
+        # For cells with 1 in the grid, check for survival conditions using neighbour array
+        next_gen_grid = grid.copy()
+        mask_grid = grid * neighbours_grid
+        index_r, index_c = np.where(mask_grid != 0)
+        for i in range(len(index_r)):
+            if neighbours_grid[index_r[i]][index_c[i]] not in survival:
+                next_gen_grid[index_r[i]][index_c[i]] = 0
 
         # For cells with 0 in the grid, check for birth conditions using neighbour array
-        next_gen_grid = grid
-        mask_grid = grid * neighbours_grid
+        mask_grid = (1 - grid) * neighbours_grid
         index_r, index_c = np.where(mask_grid != 0)
         for i in range(len(index_r)):
             if neighbours_grid[index_r[i]][index_c[i]] in birth:
                 next_gen_grid[index_r[i]][index_c[i]] = 1
-            else:
-                next_gen_grid[index_r[i]][index_c[i]] = 0
 
-        # For cells with 1 in the grid, check for survival conditions using neighbour array
-        mask_grid = (1 - grid) * neighbours_grid
-        index_r, index_c = np.where(mask_grid != 0)
-        for i in range(len(index_r)):
-            if neighbours_grid[index_r[i]][index_c[i]] in survival:
-                next_gen_grid[index_r[i]][index_c[i]] = 1
-            else:
-                next_gen_grid[index_r[i]][index_c[i]] = 0
-
-        # Create new generation of grid
 
         # return grid, please.
         return next_gen_grid
