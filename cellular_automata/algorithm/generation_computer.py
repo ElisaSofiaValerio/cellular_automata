@@ -28,7 +28,6 @@ class GenCompute:
             if neighbours_grid[index_r[i]][index_c[i]] in birth:
                 next_gen_grid[index_r[i]][index_c[i]] = 1
 
-
         # return grid, please.
         return next_gen_grid
 
