@@ -1,6 +1,7 @@
 import numpy as np
-import pyqtgraph as pg
 from PyQt5 import QtWidgets, QtCore
+import pyqtgraph as pg
+
 
 from cellular_automata.algorithm.generation_computer import GenCompute
 
@@ -49,10 +50,12 @@ class MainWindow(QtWidgets.QWidget):
         rows = self.rows.value()
         cols = self.cols.value()
         if self.grid is None:
-            self.grid = np.random.choice([0, 1], size=(rows, cols), p=(float(self.zero_prob.text()), float(self.one_prob.text())))
+            self.smaller_grid = np.random.choice([0, 1], size=(rows // 2, cols // 2), p=(float(self.zero_prob.text()), 1 - float(self.zero_prob.text())))
+            self.grid = np.zeros(shape=(rows,cols))
+            self.grid[rows//4: rows//4 + rows//2, cols // 4: cols//4 + cols//2] = self.smaller_grid
         self.update_image()
         if self.grid_active:
-            pen = pg.mkPen(color=(200, 200, 200, 20), width=0.5)
+            pen = pg.mkPen(color=(200, 200, 200, 100), width=0.5)
 
             for x in range(1, cols):
                 line = pg.InfiniteLine(pos=x, angle=90, pen=pen, movable=False)
@@ -155,11 +158,11 @@ class MainWindow(QtWidgets.QWidget):
         self.zero_prob = QtWidgets.QLineEdit(self)
         self.zero_prob.setText("0.9")
 
-        self.one_prob = QtWidgets.QLineEdit(self)
-        self.one_prob.setText("0.1")
+        # self.one_prob = QtWidgets.QLineEdit(self)
+        # self.one_prob.setText("0.1")
 
         self.controls.addWidget(self.zero_prob)
-        self.controls.addWidget(self.one_prob)
+        #self.controls.addWidget(self.one_prob)
 
         self.controls.addStretch(1)
 

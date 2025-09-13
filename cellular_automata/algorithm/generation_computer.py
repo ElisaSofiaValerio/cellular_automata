@@ -22,6 +22,7 @@ class GenCompute:
                 next_gen_grid[index_r[i]][index_c[i]] = 0
 
         # For cells with 0 in the grid, check for birth conditions using neighbour array
+        #Kindly fix a small bug here, its in your notes.
         mask_grid = (1 - grid) * neighbours_grid
         index_r, index_c = np.where(mask_grid != 0)
         for i in range(len(index_r)):
