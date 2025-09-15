@@ -73,12 +73,12 @@ class Chromosome:
 
     def get_birth(self):
         birth_rule = np.nonzero(self.genes[:9])[0]
-        birth_rule.tolist()
+        birth_rule = birth_rule.tolist()
         return birth_rule
 
     def get_survival(self):
         survival_rule = np.nonzero(self.genes[9:18])[0]
-        survival_rule.tolist()
+        survival_rule = survival_rule.tolist()
         return survival_rule
 
     def get_kernel(self):
@@ -95,12 +95,26 @@ class Chromosome:
         self.best_step is the step/frame which has the best score.
         :return:
         """
-        dice_score = None
+        x = sum(sum(input_grid))
+        y = sum(sum(target_grid))
+        overlap = input_grid*target_grid
+        intersection = sum(sum(overlap))
+        dice_score = (2*intersection)/(x+y)
+        self.best_score = dice_score
 
         number_of_steps = 50
+        ev = GenCompute()
+        current_grid = input_grid.copy()
         for i in range(number_of_steps):
-            g = GenCompute()
-
+            next_gen = ev.next_step(current_grid, self.get_kernel(), self.get_birth(), self.get_survival())
+            x = sum(sum(next_gen))
+            overlap = next_gen * target_grid
+            intersection = sum(sum(overlap))
+            dice_score = (2 * intersection) / (x + y)
+            if dice_score > self.best_score:
+                self.best_score = dice_score
+                self.best_step = i
+            current_grid = next_gen
 
         return dice_score
 
@@ -130,13 +144,12 @@ class GeneticEvolutionOfSnails:
         """
         chromosomes_list = []
         for i in range(self.population_size):
-            genes = np.random.rand(1, 27)
-            np.round(genes)
+            genes = np.random.rand(27)
+            genes = np.round(genes)
+            genes = genes.tolist()
             c = Chromosome(genes)
             chromosomes_list.append(c)
         self.population = chromosomes_list
-
-        return
 
 
     def crossover(self, top_chromosomes: List):
