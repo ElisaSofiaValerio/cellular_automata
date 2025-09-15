@@ -1,3 +1,6 @@
+from typing import List
+
+import numpy as np
 
 
 # The algorithm we will be using is called Genetic Algorithm
@@ -54,3 +57,139 @@
 # STEP UNO -  Encode birth, survive, kernel into chromosomes i.e a member of population
 # STEP DUE - GEenerate memembers of population automatically, its random.
 # STEP TRE - Implement fitness for a SINGLE member of population.
+
+class Chromosome:
+    """
+    FEEL FREE TO EDIT THIS CODE TO HOW YOU LIKE!
+    ASSUMING BIRTH IS FIRST
+    SURVIVAL IS SECOND
+    KERNEL IS THIRD
+    """
+    def __init__(self, random_genes):
+        self.genes = random_genes
+        self.best_score = -1.0
+        self.best_step = 0
+
+    def get_birth(self):
+        return self.genes[:9]
+
+    def get_survival(self):
+        return self.genes[9:18]
+
+    def get_kernel(self):
+        return np.array(self.genes[18:]).reshape(3, 3)
+
+    def fitness(self):
+        """
+        COMPUTE AND RETURN DICE SCORE (OR ANY METRIC OF YOUR CHOICE) OF THIS CHROMOSOME
+        RUN THIS CHROMOSOME THROUGH MULTIPLE STEPS WITH THE CODE YOU IMPLEMENTED BEFORE (next_step code)
+        USE THE ABOVE FUNCTIONS TO MAKE LIFE EASIER, ALSO LEARN HOW THEY WORK.
+        MAKE SURE TO UPDATE self.best_score and self.best_step
+        self.best_score is the best score you get out of all the steps you run
+        self.best_step is the step/frame which has the best score.
+        :return:
+        """
+        dice_score = None
+        # WRITE YOUR CODE HERE
+
+        return dice_score
+
+
+class GeneticEvolutionOfSnails:
+
+    def __init__(self, input_grid, target, population_size=100, number_of_generations=100):
+        self.input_grid = input_grid
+        self.target_grid = target
+        self.population_size = population_size
+        self.num_gen = number_of_generations
+        self.population = None
+
+        # EDIT THESE VARIABLES TO YOUR LIKING
+        self.crossover_percentage = 20
+        self.mutation_rate_percentage = 1
+
+    def generate_population(self):
+        """
+        Generate a population
+        Each member of population is Chromosome object
+        Each chromosome object should be initialized with genes.
+        Randomly generate a list of size 27, with random 0's or 1's, that is your random gene.
+        Store each chromosome object in a list
+        set self.population = the created list
+        :return:
+        """
+        # Write code here
+
+    def crossover(self, top_chromosomes: List):
+        """
+        Given a list of top (20%) of the chromosomes, we perform crossover over all of them
+        Use different crossover techniques to create children for next generation
+        Use the current parents also in next generation
+        You can also random generate new population for the next generation, choice is yours
+        The next generation size should be a list of chromosomes equal to self.population_size
+        :return next_generation_list:
+        """
+        # Write code here
+
+    def mutation(self, next_generation: List):
+        """
+        Perform mutation per chromosome, per item in the gene based on mutation_rate_percentage (1%)
+        Mutation is currently defined as flipping the bit, 0->1 or 1->0.
+        return the next_generation_list after mutation
+        :param next_generation:
+        :return:
+        """
+        # Write code here
+
+    def single_epoch(self):
+        """
+        For each member of population
+        Compute its fitness score
+        Store the best fitness score for each chromosome/population member
+        Select top chromosomes based on crossover_rate
+        Call self.crossover(top_chromosomes) function to give it the top chromosomes to do crossover
+        You should recieve a new list, call it next_generation or something
+        Send this new list to self.mutation(next_generation) function, to perform mutation.
+        You now have a new generation
+        set self.population = this new generation list
+        return the best scoring chromosome object.
+        :return:
+        """
+        # Write code here
+
+    def run(self):
+        """
+        Run loop for number of generations
+        For each epoch, return the top performing chromosome
+        the top_performer should be Chromosome object
+        Below that I print the best score for each generation and if the best score is 1.0
+        Then you print the chromosome's kernel, birth and survival.
+        :return:
+        """
+        self.generate_population()
+        for n in range(self.num_gen):
+            top_performer = self.single_epoch()
+            print(top_performer.best_score, top_performer.best_step)
+            if top_performer.best_score == 1.0:
+                print(top_performer.get_kernel())
+                print(top_performer.get_birth())
+                print(top_performer.get_survival())
+
+
+if __name__=='__main__':
+
+    grid = np.zeros(shape=(10, 10))
+    grid[4][4] = 1
+    grid[4][5] = 1
+    grid[5][4] = 1
+    grid[5][5] = 1
+
+    target_grid = np.zeros(shape=(10, 10))
+    target_grid[4][5] = 1
+    target_grid[5][5] = 1
+    target_grid[5][6] = 1
+    target_grid[4][6] = 1
+
+    g = GeneticEvolutionOfSnails(population_size=200, number_of_generations=100, input_grid=grid, target=target_grid)
+    g.run()
+
