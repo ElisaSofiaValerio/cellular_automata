@@ -22,7 +22,9 @@ class GridInputWindow(QtWidgets.QWidget):
                 cell = QtWidgets.QLineEdit(self)
                 cell.setFixedSize(40, 40)
                 cell.setAlignment(QtCore.Qt.AlignCenter)
-                cell.setText('0')
+                cell.setText('1')
+                if i == j == 1:
+                    cell.setText('0')
                 self.layout.addWidget(cell, i, j)
                 row.append(cell)
             self.cells.append(row)
