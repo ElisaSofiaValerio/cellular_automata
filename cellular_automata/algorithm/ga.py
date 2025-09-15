@@ -1,6 +1,7 @@
 from typing import List
-
 import numpy as np
+
+from cellular_automata.algorithm.generation_computer import GenCompute
 
 
 # The algorithm we will be using is called Genetic Algorithm
@@ -71,26 +72,35 @@ class Chromosome:
         self.best_step = 0
 
     def get_birth(self):
-        return self.genes[:9]
+        birth_rule = np.nonzero(self.genes[:9])[0]
+        birth_rule.tolist()
+        return birth_rule
 
     def get_survival(self):
-        return self.genes[9:18]
+        survival_rule = np.nonzero(self.genes[9:18])[0]
+        survival_rule.tolist()
+        return survival_rule
 
     def get_kernel(self):
         return np.array(self.genes[18:]).reshape(3, 3)
 
-    def fitness(self):
+    def fitness(self, input_grid, target_grid):
         """
         COMPUTE AND RETURN DICE SCORE (OR ANY METRIC OF YOUR CHOICE) OF THIS CHROMOSOME
         RUN THIS CHROMOSOME THROUGH MULTIPLE STEPS WITH THE CODE YOU IMPLEMENTED BEFORE (next_step code)
         USE THE ABOVE FUNCTIONS TO MAKE LIFE EASIER, ALSO LEARN HOW THEY WORK.
+        Run the next_step function for a certain number of steps. Let's say 50.
         MAKE SURE TO UPDATE self.best_score and self.best_step
         self.best_score is the best score you get out of all the steps you run
         self.best_step is the step/frame which has the best score.
         :return:
         """
         dice_score = None
-        # WRITE YOUR CODE HERE
+
+        number_of_steps = 50
+        for i in range(number_of_steps):
+            g = GenCompute()
+
 
         return dice_score
 
@@ -110,7 +120,7 @@ class GeneticEvolutionOfSnails:
 
     def generate_population(self):
         """
-        Generate a population
+        Generate a population. Population number is defined by self.population_size. Use it
         Each member of population is Chromosome object
         Each chromosome object should be initialized with genes.
         Randomly generate a list of size 27, with random 0's or 1's, that is your random gene.
@@ -118,7 +128,16 @@ class GeneticEvolutionOfSnails:
         set self.population = the created list
         :return:
         """
-        # Write code here
+        chromosomes_list = []
+        for i in range(self.population_size):
+            genes = np.random.rand(1, 27)
+            np.round(genes)
+            c = Chromosome(genes)
+            chromosomes_list.append(c)
+        self.population = chromosomes_list
+
+        return
+
 
     def crossover(self, top_chromosomes: List):
         """
@@ -146,7 +165,7 @@ class GeneticEvolutionOfSnails:
         For each member of population
         Compute its fitness score
         Store the best fitness score for each chromosome/population member
-        Select top chromosomes based on crossover_rate
+        Select top chromosomes based on crossover_rate (for 100 chromosomes, select top 20)
         Call self.crossover(top_chromosomes) function to give it the top chromosomes to do crossover
         You should recieve a new list, call it next_generation or something
         Send this new list to self.mutation(next_generation) function, to perform mutation.
