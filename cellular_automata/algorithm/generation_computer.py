@@ -19,7 +19,6 @@ class GenCompute:
             next_gen_grid = np.zeros(grid.shape)
         else:
             next_gen_grid = grid.copy()
-            mask_grid = grid * neighbours_grid
             # For cells with 0 in the grid, check for birth conditions using neighbour array
             # I removed the mask for the zeros
             index_r, index_c = np.where(grid == 0)
@@ -27,7 +26,7 @@ class GenCompute:
                 if neighbours_grid[index_r[i]][index_c[i]] in birth:
                     next_gen_grid[index_r[i]][index_c[i]] = 1
             # For cells with 1 in the grid, check for survival conditions using neighbour array
-            index_r, index_c = np.where(mask_grid != 0)
+            index_r, index_c = np.where(grid == 1)
             for i in range(len(index_r)):
                 if neighbours_grid[index_r[i]][index_c[i]] not in survival:
                     next_gen_grid[index_r[i]][index_c[i]] = 0
