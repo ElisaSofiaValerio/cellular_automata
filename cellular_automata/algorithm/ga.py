@@ -165,29 +165,29 @@ class GeneticEvolutionOfSnails:
         next_gen_chr = top_chromosomes
         single_cross_rate = (100 - self.crossover_percentage) / 2
         # single cross-over at birth rule
-        for i in range(int(single_cross_rate // 4)):
+        for i in range(int(single_cross_rate // 2)):
             parents = random.choices(top_chromosomes, k = 2)
-            child_1_genes = parents[0].genes
-            child_1_genes = child_1_genes.append(parents[1].genes[9:])
+            child_1_genes = parents[0].genes[:9]
+            child_1_genes.append(parents[1].genes[9:])
             child_1 = Chromosome(child_1_genes)
             child_2_genes = parents[1].genes[:9]
-            child_2_genes = child_2_genes.append(parents[0].genes[9:])
+            child_2_genes.append(parents[0].genes[9:])
             child_2 = Chromosome(child_2_genes)
             next_gen_chr.append(child_1)
             next_gen_chr.append(child_2)
         # single cross-over at kernel
-        for i in range(int(single_cross_rate // 4)):
+        for i in range(int(single_cross_rate // 2)):
             parents = random.choices(top_chromosomes, k=2)
             child_1_genes = parents[0].genes[:18]
-            child_1_genes = child_1_genes.append(parents[1].genes[18:])
+            child_1_genes.append(parents[1].genes[18:])
             child_1 = Chromosome(child_1_genes)
             child_2_genes = parents[1].genes[:18]
-            child_2_genes = child_2_genes.append(parents[0].genes[18:])
+            child_2_genes.append(parents[0].genes[18:])
             child_2 = Chromosome(child_2_genes)
             next_gen_chr.append(child_1)
             next_gen_chr.append(child_2)
-        # double croos-over (exchanging of survival rate gene)
-        for i in range(int(single_cross_rate // 2)):
+        # double cross-over (exchanging of survival rate gene)
+        for i in range(int(single_cross_rate//2)):
             parents = random.choices(top_chromosomes, k=2)
             child_1_genes = parents[0].genes
             child_2_genes = parents[1].genes
@@ -197,6 +197,14 @@ class GeneticEvolutionOfSnails:
             child_2 = Chromosome(child_2_genes)
             next_gen_chr.append(child_1)
             next_gen_chr.append(child_2)
+        # now 40 new random chromosomes
+        for i in range(int(single_cross_rate)):
+            genes = np.random.rand(27)
+            genes = np.round(genes)
+            genes = genes.tolist()
+            c = Chromosome(genes)
+            next_gen_chr.append(c)
+
 
         return next_gen_chr
 
