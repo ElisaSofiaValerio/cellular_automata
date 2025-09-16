@@ -1,6 +1,7 @@
 import random
 from typing import List
 import numpy as np
+from numexpr.necompiler import double
 
 from cellular_automata.algorithm.generation_computer import GenCompute
 
@@ -117,7 +118,7 @@ class Chromosome:
                 self.best_step = i
             current_grid = next_gen
 
-        return dice_score
+        return self.best_score
 
 
 class GeneticEvolutionOfSnails:
@@ -131,7 +132,7 @@ class GeneticEvolutionOfSnails:
 
         # EDIT THESE VARIABLES TO YOUR LIKING
         self.crossover_percentage = 20
-        self.mutation_rate_percentage = 1
+        self.mutation_rate_percentage = 5
 
     def generate_population(self):
         """
@@ -150,6 +151,8 @@ class GeneticEvolutionOfSnails:
             genes = genes.tolist()
             c = Chromosome(genes)
             chromosomes_list.append(c)
+        # test_gene = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0]
+        # chromosomes_list.append(Chromosome(test_gene))
         self.population = chromosomes_list
 
 
@@ -163,31 +166,32 @@ class GeneticEvolutionOfSnails:
         :return next_generation_list:
         """
         next_gen_chr = top_chromosomes
-        single_cross_rate = (100 - self.crossover_percentage) / 2
+        single_cross_rate = (100 - self.crossover_percentage) // 3
         # single cross-over at birth rule
-        for i in range(int(single_cross_rate // 2)):
+        single_cross_birth = int((single_cross_rate/100)*self.population_size // 2)
+        for i in range(single_cross_birth//2):
             parents = random.choices(top_chromosomes, k = 2)
             child_1_genes = parents[0].genes[:9]
-            child_1_genes.append(parents[1].genes[9:])
+            child_1_genes.extend(parents[1].genes[9:])
             child_1 = Chromosome(child_1_genes)
             child_2_genes = parents[1].genes[:9]
-            child_2_genes.append(parents[0].genes[9:])
+            child_2_genes.extend(parents[0].genes[9:])
             child_2 = Chromosome(child_2_genes)
             next_gen_chr.append(child_1)
             next_gen_chr.append(child_2)
         # single cross-over at kernel
-        for i in range(int(single_cross_rate // 2)):
+        for i in range(single_cross_birth//2):
             parents = random.choices(top_chromosomes, k=2)
             child_1_genes = parents[0].genes[:18]
-            child_1_genes.append(parents[1].genes[18:])
+            child_1_genes.extend(parents[1].genes[18:])
             child_1 = Chromosome(child_1_genes)
             child_2_genes = parents[1].genes[:18]
-            child_2_genes.append(parents[0].genes[18:])
+            child_2_genes.extend(parents[0].genes[18:])
             child_2 = Chromosome(child_2_genes)
             next_gen_chr.append(child_1)
             next_gen_chr.append(child_2)
         # double cross-over (exchanging of survival rate gene)
-        for i in range(int(single_cross_rate//2)):
+        for i in range(single_cross_birth):
             parents = random.choices(top_chromosomes, k=2)
             child_1_genes = parents[0].genes
             child_2_genes = parents[1].genes
@@ -198,7 +202,7 @@ class GeneticEvolutionOfSnails:
             next_gen_chr.append(child_1)
             next_gen_chr.append(child_2)
         # now 40 new random chromosomes
-        for i in range(int(single_cross_rate)):
+        for i in range(self.population_size-len(next_gen_chr)):
             genes = np.random.rand(27)
             genes = np.round(genes)
             genes = genes.tolist()
@@ -209,13 +213,6 @@ class GeneticEvolutionOfSnails:
         return next_gen_chr
 
 
-
-
-
-
-
-
-
     def mutation(self, next_generation: List):
         """
         Perform mutation per chromosome, per item in the gene based on mutation_rate_percentage (1%)
@@ -224,7 +221,29 @@ class GeneticEvolutionOfSnails:
         :param next_generation:
         :return:
         """
-        # Write code here
+        # exponent = 1
+        # if isinstance(self.mutation_rate_percentage, float):
+        #     decimals = len(str(self.mutation_rate_percentage % 1)[2:])
+        #     exponent = 10 ** decimals
+        #     self.mutation_rate_percentage = int(self.mutation_rate_percentage * exponent)
+        #
+        # costum_dice = np.zeros(100 * exponent)
+        # costum_dice[:self.mutation_rate_percentage] = 1
+        # for i in range(self.population_size):
+        #     for j in range(len(next_generation[i].genes)):
+        #         draw = np.random.choice(costum_dice)
+        #         if draw == 1:
+        #             next_generation[i].genes[j] = 1 - next_generation[i].genes[j]
+        #
+        # return next_generation
+
+        for i in range(self.population_size):
+
+            for j in range(len(next_generation[i].genes)):
+                if random.random() < (self.mutation_rate_percentage/100):
+                    next_generation[i].genes[j] = 1 - next_generation[i].genes[j]
+
+        return next_generation
 
     def single_epoch(self):
         """
@@ -244,15 +263,16 @@ class GeneticEvolutionOfSnails:
         for i in range(self.population_size):
             fit = self.population[i].fitness(self.input_grid,self.target_grid)
             ch_fit.append([self.population[i], fit])
+        # self.population[-1].fitness(self.input_grid, self.target_grid)
         sorted_ch = sorted(ch_fit, key=lambda x: x[1], reverse=True)
         top_rate = int((self.crossover_percentage/100)*self.population_size)
         top_ch_fit = sorted_ch[:top_rate]
         top_ch = [item[0] for item in top_ch_fit]
         gen_crossed_chromosomes = self.crossover(top_ch)
+        self.population = self.mutation(gen_crossed_chromosomes)
 
 
-        print()
-        #self.crossover_percentage
+        return top_ch[0]
 
 
     def run(self):
@@ -264,29 +284,46 @@ class GeneticEvolutionOfSnails:
         Then you print the chromosome's kernel, birth and survival.
         :return:
         """
+        best_score = -1
         self.generate_population()
         for n in range(self.num_gen):
             top_performer = self.single_epoch()
             print(top_performer.best_score, top_performer.best_step)
-            if top_performer.best_score == 1.0:
+            if top_performer.best_score > best_score:
+                best_score = top_performer.best_score
+                print("_________________________________________")
                 print(top_performer.get_kernel())
                 print(top_performer.get_birth())
                 print(top_performer.get_survival())
+                print("_________________________________________")
+            if top_performer.best_score >= 0.95:
+                print(top_performer.get_kernel())
+                print(top_performer.get_birth())
+                print(top_performer.get_survival())
+                break
 
 
 if __name__=='__main__':
 
-    grid = np.zeros(shape=(10, 10))
-    grid[4][4] = 1
-    grid[4][5] = 1
-    grid[5][4] = 1
-    grid[5][5] = 1
+    grid = np.zeros(shape=(100, 100))
+    grid[49][49] = 1
+    # grid[4][5] = 1
+    # grid[5][4] = 1
+    # grid[5][5] = 1
 
-    target_grid = np.zeros(shape=(10, 10))
-    target_grid[4][5] = 1
-    target_grid[5][5] = 1
-    target_grid[5][6] = 1
-    target_grid[4][6] = 1
+    target_grid = np.zeros((100, 100), dtype=int)
+
+    # Define square parameters
+    edge_size = 50
+    center = target_grid.shape[0] // 2  # 50
+    half = edge_size // 2  # 25
+
+    # Get bounds of the square
+    start = center - half  # 25
+    end = center + half  # 75
+
+    # Fill square
+    target_grid[start:end, start:end] = 1
 
     g = GeneticEvolutionOfSnails(population_size=200, number_of_generations=100, input_grid=grid, target=target_grid)
     g.run()
