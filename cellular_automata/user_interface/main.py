@@ -7,13 +7,14 @@ from cellular_automata.algorithm.generation_computer import GenCompute
 
 
 class GridInputWindow(QtWidgets.QWidget):
-    def __init__(self, n=3):
+    def __init__(self, layout, n=3):
         super().__init__()
         self.setWindowTitle("Input Kernel")
         self.setFixedSize(300, 300)
 
         self.grid_size = n
-        self.layout = QtWidgets.QGridLayout(self)
+        #self.layout = QtWidgets.QGridLayout(self)
+        self.layout = layout
         self.cells = []
 
         for i in range(n):
@@ -132,8 +133,10 @@ class MainWindow(QtWidgets.QWidget):
         self.grid_active = False
         self.main = QtWidgets.QVBoxLayout(self)
         self.controls = QtWidgets.QHBoxLayout()
+        self.kernel_layout = QtWidgets.QGridLayout()
 
         self.main.addLayout(self.controls)
+
         self.btn_set = QtWidgets.QPushButton("Set Grid")
         self.toggle_grid = QtWidgets.QPushButton("Toggle Grid")
         self.randomize_btn = QtWidgets.QPushButton("Randomize")
@@ -177,6 +180,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.view = pg.GraphicsLayoutWidget()
         self.main.addWidget(self.view)
+        self.main.addLayout(self.kernel_layout)
 
         self.plot = self.view.addPlot()
         self.plot.setAspectLocked(True)
@@ -189,8 +193,8 @@ class MainWindow(QtWidgets.QWidget):
         self.grid_lines = []
         self.image_item.mouseClickEvent = self.on_click
 
-        self.grid_input_window = GridInputWindow(n=3)
-        self.grid_input_window.show()
+        self.grid_input_window = GridInputWindow(n=3, layout=self.kernel_layout)
+        #self.grid_input_window.show()
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self._step)
