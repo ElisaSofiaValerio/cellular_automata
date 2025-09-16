@@ -1,3 +1,4 @@
+import random
 from typing import List
 import numpy as np
 
@@ -95,10 +96,10 @@ class Chromosome:
         self.best_step is the step/frame which has the best score.
         :return:
         """
-        x = sum(sum(input_grid))
-        y = sum(sum(target_grid))
+        x = input_grid.sum()
+        y = target_grid.sum()
         overlap = input_grid*target_grid
-        intersection = sum(sum(overlap))
+        intersection = overlap.sum()
         dice_score = (2*intersection)/(x+y)
         self.best_score = dice_score
 
@@ -107,9 +108,9 @@ class Chromosome:
         current_grid = input_grid.copy()
         for i in range(number_of_steps):
             next_gen = ev.next_step(current_grid, self.get_kernel(), self.get_birth(), self.get_survival())
-            x = sum(sum(next_gen))
+            x = next_gen.sum()
             overlap = next_gen * target_grid
-            intersection = sum(sum(overlap))
+            intersection = overlap.sum()
             dice_score = (2 * intersection) / (x + y)
             if dice_score > self.best_score:
                 self.best_score = dice_score
@@ -161,7 +162,51 @@ class GeneticEvolutionOfSnails:
         The next generation size should be a list of chromosomes equal to self.population_size
         :return next_generation_list:
         """
-        # Write code here
+        next_gen_chr = top_chromosomes
+        single_cross_rate = (100 - self.crossover_percentage) / 2
+        # single cross-over at birth rule
+        for i in range(int(single_cross_rate // 4)):
+            parents = random.choices(top_chromosomes, k = 2)
+            child_1_genes = parents[0].genes
+            child_1_genes = child_1_genes.append(parents[1].genes[9:])
+            child_1 = Chromosome(child_1_genes)
+            child_2_genes = parents[1].genes[:9]
+            child_2_genes = child_2_genes.append(parents[0].genes[9:])
+            child_2 = Chromosome(child_2_genes)
+            next_gen_chr.append(child_1)
+            next_gen_chr.append(child_2)
+        # single cross-over at kernel
+        for i in range(int(single_cross_rate // 4)):
+            parents = random.choices(top_chromosomes, k=2)
+            child_1_genes = parents[0].genes[:18]
+            child_1_genes = child_1_genes.append(parents[1].genes[18:])
+            child_1 = Chromosome(child_1_genes)
+            child_2_genes = parents[1].genes[:18]
+            child_2_genes = child_2_genes.append(parents[0].genes[18:])
+            child_2 = Chromosome(child_2_genes)
+            next_gen_chr.append(child_1)
+            next_gen_chr.append(child_2)
+        # double croos-over (exchanging of survival rate gene)
+        for i in range(int(single_cross_rate // 2)):
+            parents = random.choices(top_chromosomes, k=2)
+            child_1_genes = parents[0].genes
+            child_2_genes = parents[1].genes
+            child_1_genes[9:18] = parents[1].genes[9:18]
+            child_2_genes[9:18] = parents[0].genes[9:18]
+            child_1 = Chromosome(child_1_genes)
+            child_2 = Chromosome(child_2_genes)
+            next_gen_chr.append(child_1)
+            next_gen_chr.append(child_2)
+
+        return next_gen_chr
+
+
+
+
+
+
+
+
 
     def mutation(self, next_generation: List):
         """
@@ -180,14 +225,27 @@ class GeneticEvolutionOfSnails:
         Store the best fitness score for each chromosome/population member
         Select top chromosomes based on crossover_rate (for 100 chromosomes, select top 20)
         Call self.crossover(top_chromosomes) function to give it the top chromosomes to do crossover
-        You should recieve a new list, call it next_generation or something
+        You should receive a new list, call it next_generation or something
         Send this new list to self.mutation(next_generation) function, to perform mutation.
         You now have a new generation
         set self.population = this new generation list
         return the best scoring chromosome object.
         :return:
         """
-        # Write code here
+        ch_fit = []
+        for i in range(self.population_size):
+            fit = self.population[i].fitness(self.input_grid,self.target_grid)
+            ch_fit.append([self.population[i], fit])
+        sorted_ch = sorted(ch_fit, key=lambda x: x[1], reverse=True)
+        top_rate = int((self.crossover_percentage/100)*self.population_size)
+        top_ch_fit = sorted_ch[:top_rate]
+        top_ch = [item[0] for item in top_ch_fit]
+        gen_crossed_chromosomes = self.crossover(top_ch)
+
+
+        print()
+        #self.crossover_percentage
+
 
     def run(self):
         """
